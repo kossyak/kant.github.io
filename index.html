@@ -5,23 +5,219 @@
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="shortcut icon" href="kant.svg" type="image/x-icon">
-  <title>kant js</title>
+  <script src="https://cdn.rawgit.com/mozilla/localForage/master/dist/localforage.js"></script>
+  <title>Document</title>
 </head>
-<body>
-  <img src="kant.svg" alt="kant js">
-</body>
 <style>
+  html {
+    height: 100vh;
+  }
   body {
+    margin: 0;
+    padding: 0;
+  }
+  .buttons {
+    position: fixed;
+    top: 0;
+  }
+  button {
+    margin: 5px .5px;
+    border: 0;
+    background-color: #eee;
+    padding: 15px 28px;
+  }
+  .result {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    padding-top: 60px;
+    box-sizing: border-box;
     height: 100vh;
-    background: #FFF;
   }
-  img {
-    display: block;
-    width: 80vh;
+  .el {
+    background: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .block {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .circle {
+    background-color: white;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
   }
 </style>
+<body>
+<div class="buttons">
+  <button class="res">View all</button>
+  <button class="update">Update</button>
+  <button class="clear">Clear</button>
+  <button class="more">more</button>
+  <button class="less">less</button>
+  <button class="empty">Empty</button>
+  <button class="plus">+</button>
+  <button class="minus">-</button>
+  <button class="save">Save</button>
+</div>
+<div class="result"></div>
+<script>
+  const root = document.querySelector(".result")
+  const save = document.querySelector(".save")
+  const clear = document.querySelector(".clear")
+  const update = document.querySelector(".update")
+  const result = document.querySelector(".res")
+  const empty = document.querySelector(".empty")
+  const minus = document.querySelector(".minus")
+  const plus = document.querySelector(".plus")
+  let margin = 0
+  let radius = 0
+  const more = document.querySelector(".more")
+  const less = document.querySelector(".less")
+  const width = root.clientWidth
+  let maxMargin = 0
+  let minMargin = 5
+  let size = 1
+  const step = 10
+  let state = []
+  let elements = []
+  let maxRadius = 0
+  let minRadius = 0
+  let block = ''
+  let blockElement = ''
+
+  function styleEmpty() {
+    elements.forEach(el => {
+      el.style.width = radius + 'px'
+      el.style.height = radius + 'px'
+    })
+  }
+
+  empty.onclick = () => {
+    radius = size
+    styleEmpty()
+  }
+
+  function minus1() {
+    minRadius = 0.6 * size
+    if (radius >= minRadius) {
+      radius-=2
+      styleEmpty()
+    }
+
+  }
+  minus.onclick = () => {
+    minus1()
+  }
+  function plus1() {
+    maxRadius = size - step
+    if (radius <= maxRadius) {
+      radius+=2
+      styleEmpty()
+    }
+
+  }
+  plus.onclick = () => {
+    plus1()
+  }
+
+  function element(x, y = 0, z = 0) {
+    block = '<div class="block">'
+    for (let i = 2; i >= 0; i--) {
+      block += `<div class="el" style="height:${x}px;width:${x}px;margin:${y}px">
+    	<div class="circle" style="height:${z}px;width:${z}px;"></div>
+    </div>`
+
+    }
+    block += '</div>'
+    root.insertAdjacentHTML('beforeend', block)
+    elements = Array.from(root.getElementsByClassName('circle'));
+    blockElement = root.querySelector(".block")
+  }
+
+  function render() {
+
+    const min = 20
+    const max = width * 0.25
+    console.log(max)
+    size = randomIntFromInterval(min, max)
+    maxMargin = (width - 3 * size) / 6
+
+    element(size)
+
+  }
+
+  save.onclick = () => {
+    state.push([width, size, margin, radius])
+    localforage.setItem('blocks', state)
+    margin = 0
+  }
+  result.onclick = () => {
+    root.innerHTML = ''
+    localforage.getItem('blocks').then((blocks) => {
+      state = blocks
+      state.forEach ((el, n) => {
+        console.log(state[n])
+        const sizeSet = state[n][1]
+        const marginSet = state[n][2]
+        const radiusSet = state[n][3]
+        element(sizeSet, marginSet, radiusSet)
+      })
+    });
+  }
+
+
+
+  render()
+  update.onclick = () => {
+    root.innerHTML = ''
+    render()
+  }
+  clear.onclick = () => {
+    root.innerHTML = ''
+    localforage.clear()
+  }
+
+  function randomIntFromInterval(min, max) { // min and max included
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  function more1() {
+    if (margin <= maxMargin - step) {
+      margin = margin + step
+      for (let i = 0; i < 3; i++) {
+        blockElement.children[i].style.margin = margin + 'px'
+        console.log(margin)
+      }
+    }
+  }
+
+  more.onclick = () => {
+    more1()
+  }
+
+  function less1() {
+    if (margin >= minMargin + step) {
+      margin = margin - step
+      for (let i = 0; i < 3; i++) {
+        blockElement.children[i].style.margin = margin + 'px'
+        console.log(margin)
+      }
+    }
+  }
+
+  less.onclick = () => {
+    less1()
+  }
+
+
+</script>
+</body>
 </html>
