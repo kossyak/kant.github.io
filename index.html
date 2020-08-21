@@ -20,7 +20,9 @@
   .buttons {
     position: fixed;
     display: flex;
+    flex-wrap: wrap;
     top: 0;
+    z-index: 1;
   }
   button {
     margin: 5px 0.5px;
@@ -49,6 +51,7 @@
     position: relative;
     display: flex;
     justify-content: center;
+    padding-top: 30px;
     width: 100%;
   }
   .info {
@@ -68,11 +71,14 @@
   .bar strong {
     font-stretch: semi-condensed;
   }
-  .sidebar {
+  .buttons > button {
     display: none;
   }
-  .show {
-    display: flex;
+  .buttons .bar {
+    display: block;
+  }
+  .show > button {
+    display: block;
   }
   .info {
     color: #aaa;
@@ -80,25 +86,22 @@
   }
 </style>
 <body>
-<div class="buttons">
+<div class="buttons show">
   <button class="bar"><strong>| | |</strong></button>
-  <div class="sidebar show">
-    <button class="res">View all</button>
-    <button class="update">Update</button>
-    <button class="clear">Clear</button>
-    <button class="more">more</button>
-    <button class="less">less</button>
-    <button class="empty">Empty</button>
-    <button class="plus">+</button>
-    <button class="minus">-</button>
-    <button class="save">Save</button>
-  </div>
-
+  <button class="res">View all</button>
+  <button class="update">Update</button>
+  <button class="clear">Clear</button>
+  <button class="more">more</button>
+  <button class="less">less</button>
+  <button class="empty">Empty</button>
+  <button class="plus">+</button>
+  <button class="minus">-</button>
+  <button class="save">Save</button>
 </div>
 <div class="result"></div>
 <script>
   const bar = document.querySelector(".bar")
-  const sidebar = document.querySelector(".sidebar")
+  const buttons = document.querySelector(".buttons")
   const root = document.querySelector(".result")
   const save = document.querySelector(".save")
   const clear = document.querySelector(".clear")
@@ -133,7 +136,7 @@
   }
 
   bar.onclick = () => {
-    sidebar.classList.toggle('show')
+    buttons.classList.toggle('show')
   }
 
   empty.onclick = () => {
