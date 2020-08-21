@@ -15,13 +15,15 @@
   body {
     margin: 0;
     padding: 0;
+    font-family: Arial;
   }
   .buttons {
     position: fixed;
+    display: flex;
     top: 0;
   }
   button {
-    margin: 5px .5px;
+    margin: 5px 0.5px;
     border: 0;
     background-color: #eee;
     padding: 15px 28px;
@@ -32,21 +34,27 @@
     align-items: center;
     flex-wrap: wrap;
     width: 100%;
-    padding-top: 60px;
+    padding-top: 50px;
     box-sizing: border-box;
     height: 100vh;
   }
   .el {
-    background: black;
+    background: #222;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
   }
   .block {
+    position: relative;
     display: flex;
     justify-content: center;
     width: 100%;
+  }
+  .info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
   .circle {
     background-color: white;
@@ -54,21 +62,43 @@
     height: 80%;
     border-radius: 50%;
   }
+  .bar {
+    content: '';
+  }
+  .bar strong {
+    font-stretch: semi-condensed;
+  }
+  .sidebar {
+    display: none;
+  }
+  .show {
+    display: flex;
+  }
+  .info {
+    color: #aaa;
+    font-size: 12px;
+  }
 </style>
 <body>
 <div class="buttons">
-  <button class="res">View all</button>
-  <button class="update">Update</button>
-  <button class="clear">Clear</button>
-  <button class="more">more</button>
-  <button class="less">less</button>
-  <button class="empty">Empty</button>
-  <button class="plus">+</button>
-  <button class="minus">-</button>
-  <button class="save">Save</button>
+  <button class="bar"><strong>| | |</strong></button>
+  <div class="sidebar show">
+    <button class="res">View all</button>
+    <button class="update">Update</button>
+    <button class="clear">Clear</button>
+    <button class="more">more</button>
+    <button class="less">less</button>
+    <button class="empty">Empty</button>
+    <button class="plus">+</button>
+    <button class="minus">-</button>
+    <button class="save">Save</button>
+  </div>
+
 </div>
 <div class="result"></div>
 <script>
+  const bar = document.querySelector(".bar")
+  const sidebar = document.querySelector(".sidebar")
   const root = document.querySelector(".result")
   const save = document.querySelector(".save")
   const clear = document.querySelector(".clear")
@@ -94,20 +124,25 @@
   let blockElement = ''
 
   function styleEmpty() {
-    elements.forEach(el => {
-      el.style.width = radius + 'px'
-      el.style.height = radius + 'px'
-    })
+    // elements.forEach(el => {
+    //   el.style.width = radius + 'px'
+    //   el.style.height = radius + 'px'
+    // })
+    root.innerHTML = ''
+    element(size, margin, radius)
+  }
+
+  bar.onclick = () => {
+    sidebar.classList.toggle('show')
   }
 
   empty.onclick = () => {
-    radius = size
+    radius = size * 0.5
     styleEmpty()
   }
 
   function minus1() {
-    minRadius = 0.6 * size
-    if (radius >= minRadius) {
+    if (radius >= minRadius + 2 && radius < maxRadius) {
       radius-=2
       styleEmpty()
     }
@@ -116,9 +151,9 @@
   minus.onclick = () => {
     minus1()
   }
+
   function plus1() {
-    maxRadius = size - step
-    if (radius <= maxRadius) {
+    if (radius < maxRadius - 2 && radius >= minRadius) {
       radius+=2
       styleEmpty()
     }
@@ -129,35 +164,39 @@
   }
 
   function element(x, y = 0, z = 0) {
-    block = '<div class="block">'
+    block = `<div class="block">`
     for (let i = 2; i >= 0; i--) {
       block += `<div class="el" style="height:${x}px;width:${x}px;margin:${y}px">
     	<div class="circle" style="height:${z}px;width:${z}px;"></div>
     </div>`
 
     }
-    block += '</div>'
+    block += `<div class="info">W:${width} - S:${x} M:${y} - R:${z}</div></div>`
     root.insertAdjacentHTML('beforeend', block)
     elements = Array.from(root.getElementsByClassName('circle'));
     blockElement = root.querySelector(".block")
   }
 
   function render() {
-
+    radius = 0
+    margin = 0
     const min = 20
     const max = width * 0.25
     console.log(max)
     size = randomIntFromInterval(min, max)
+    minRadius = 0.5 * size
+    maxRadius = size * 0.9
     maxMargin = (width - 3 * size) / 6
-
     element(size)
-
   }
 
   save.onclick = () => {
-    state.push([width, size, margin, radius])
-    localforage.setItem('blocks', state)
-    margin = 0
+    localforage.getItem('blocks').then((blocks) => {
+      state = blocks || []
+      state.push([width, size, margin, radius])
+      localforage.setItem('blocks', state)
+      margin = 0
+    })
   }
   result.onclick = () => {
     root.innerHTML = ''
@@ -192,10 +231,8 @@
   function more1() {
     if (margin <= maxMargin - step) {
       margin = margin + step
-      for (let i = 0; i < 3; i++) {
-        blockElement.children[i].style.margin = margin + 'px'
-        console.log(margin)
-      }
+      root.innerHTML = ''
+      element(size, margin, radius)
     }
   }
 
@@ -206,10 +243,8 @@
   function less1() {
     if (margin >= minMargin + step) {
       margin = margin - step
-      for (let i = 0; i < 3; i++) {
-        blockElement.children[i].style.margin = margin + 'px'
-        console.log(margin)
-      }
+      root.innerHTML = ''
+      element(size, margin, radius)
     }
   }
 
