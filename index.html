@@ -65,9 +65,6 @@
   }
   .circle {
     background-color: white;
-    width: 80%;
-    height: 80%;
-    border-radius: 50%;
   }
   .bar {
     content: '';
@@ -174,7 +171,7 @@
   }
   function element(x, y = 0, z = 0) {
     block = `<div class="block">`
-    for (let i = 2; i >= 0; i--) {
+    for (let i = 5; i >= 0; i--) {
       block += `<div class="el" style="height:${x}px;width:${x}px;margin:${y}px">
     	<div class="circle" style="height:${z}px;width:${z}px;"></div>
     </div>`
