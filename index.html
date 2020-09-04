@@ -190,13 +190,13 @@
     radius = 0
     margin = 0
     const min = 20
-    const max = width * 0.25
+    const max = width * 0.12
     console.log(max)
     size = randomIntFromInterval(min, max)
     step = Math.ceil(size * 0.01)
     minRadius = 0.5 * size
     maxRadius = size * 0.9
-    maxMargin = (width - 3 * size) / 6
+    maxMargin = (width - 6 * size) / 12
     element(size)
   }
 
